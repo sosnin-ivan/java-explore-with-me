@@ -11,7 +11,7 @@ public interface HitRepository extends JpaRepository<Hit, Long> {
 		SELECT new ru.practicum.hit.HitResponse(h.app, h.uri, COUNT(h.ip))
 		FROM Hit h
 		WHERE h.timestamp BETWEEN :start AND :end
-		AND h.uri IN :uris
+		AND h.uri IN :uris OR :uris is NULL
 		GROUP BY h.app, h.uri
 		ORDER BY COUNT(h.ip) DESC
 	""")
@@ -21,7 +21,7 @@ public interface HitRepository extends JpaRepository<Hit, Long> {
 		SELECT new ru.practicum.hit.HitResponse(h.app, h.uri, COUNT(DISTINCT h.ip))
 		FROM Hit h
 		WHERE h.timestamp BETWEEN :start AND :end
-		AND h.uri IN :uris
+		AND h.uri IN :uris OR :uris is NULL
 		GROUP BY h.app, h.uri
 		ORDER BY COUNT(DISTINCT h.ip) DESC
 	""")
