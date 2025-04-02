@@ -28,7 +28,7 @@ public class BaseClient {
 		makeAndSendRequest(HttpMethod.POST, "/hit", body);
 	}
 
-	private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path , @Nullable T body) {
+	private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, @Nullable T body) {
 		HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
 
 		ResponseEntity<Object> serverResponse;
