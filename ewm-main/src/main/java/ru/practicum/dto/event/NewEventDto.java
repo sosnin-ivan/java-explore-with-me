@@ -33,7 +33,6 @@ public class NewEventDto {
 	@PositiveOrZero
 	private Long participantLimit = 0L;
 
-	@Future
 	@NotNull
 	private LocalDateTime eventDate;
 }

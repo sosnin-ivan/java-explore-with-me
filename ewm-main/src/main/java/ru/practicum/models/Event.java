@@ -31,6 +31,7 @@ public class Event {
 	@JoinColumn(name = "location_id", nullable = false)
 	private Location location;
 
+	@Builder.Default
 	@Column(nullable = false, length = 30)
 	@Enumerated(EnumType.STRING)
 	private EventState state = EventState.PENDING;
