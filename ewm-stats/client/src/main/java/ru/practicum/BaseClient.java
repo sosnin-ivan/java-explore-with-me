@@ -8,11 +8,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-@Service
 public class BaseClient {
 	protected final RestTemplate rest;
 
@@ -20,24 +18,21 @@ public class BaseClient {
 		this.rest = rest;
 	}
 
-	protected ResponseEntity<Object> get(String path) {
-		return makeAndSendRequest(HttpMethod.GET, path, null);
-	}
-
 	protected <T> void post(T body) {
-		makeAndSendRequest(HttpMethod.POST, "/hit", body);
+		makeAndSendRequest(body);
 	}
 
-	private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, @Nullable T body) {
+	private <T> void makeAndSendRequest(@Nullable T body) {
 		HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
 
 		ResponseEntity<Object> serverResponse;
 		try {
-			serverResponse = rest.exchange(path, method, requestEntity, Object.class);
+			serverResponse = rest.exchange("/hit", HttpMethod.POST, requestEntity, Object.class);
 		} catch (HttpStatusCodeException e) {
-			return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
+			ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
+			return;
 		}
-		return prepareGatewayResponse(serverResponse);
+		prepareGatewayResponse(serverResponse);
 	}
 
 	private HttpHeaders defaultHeaders() {
@@ -47,17 +42,18 @@ public class BaseClient {
 		return headers;
 	}
 
-	private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
+	private static void prepareGatewayResponse(ResponseEntity<Object> response) {
 		if (response.getStatusCode().is2xxSuccessful()) {
-			return response;
+			return;
 		}
 
 		ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
 
 		if (response.hasBody()) {
-			return responseBuilder.body(response.getBody());
+			responseBuilder.body(response.getBody());
+			return;
 		}
 
-		return responseBuilder.build();
+		responseBuilder.build();
 	}
 }
