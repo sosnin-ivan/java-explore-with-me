@@ -47,7 +47,7 @@ public class CompilationServiceImpl implements CompilationService {
 		for (Compilation compilation : compilations) {
 			Map<Long, Long> viewStats = EventUtils.getViews(compilation.getEvents());
 			Map<Long, Long> confirmedRequests = EventUtils.getConfirmedRequests(compilation.getEvents());
-			List< EventShortDto> eventsShortDto = compilation.getEvents().stream()
+			List<EventShortDto> eventsShortDto = compilation.getEvents().stream()
 					.map(event -> EventMapper.toEventShortDto(
 							event,
 							confirmedRequests.getOrDefault(event.getId(), 0L),

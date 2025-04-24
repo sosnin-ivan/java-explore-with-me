@@ -7,13 +7,22 @@ import java.time.LocalDateTime;
 
 public interface UpdateEventRequest {
 	Long getCategoryId();
+
 	LocationDto getLocation();
+
 	EventStateAction getStateAction();
+
 	String getTitle();
+
 	String getAnnotation();
+
 	String getDescription();
+
 	Boolean getPaid();
+
 	Boolean getRequestModeration();
+
 	Long getParticipantLimit();
+
 	LocalDateTime getEventDate();
 }
