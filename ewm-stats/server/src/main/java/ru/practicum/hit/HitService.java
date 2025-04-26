@@ -1,5 +1,6 @@
 package ru.practicum.hit;
 
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,9 @@ public class HitService {
 	}
 
 	public List<HitResponse> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+		if (start.isAfter(end)) {
+			throw new ValidationException("Начало периода не может быть позже конца периода");
+		}
 		if (unique) {
 			return hitRepository.findUnique(start, end, uris);
 		} else {
