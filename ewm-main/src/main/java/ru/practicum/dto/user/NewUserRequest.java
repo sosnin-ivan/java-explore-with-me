@@ -13,6 +13,6 @@ public class NewUserRequest {
 	private String email;
 
 	@NotBlank
-	@Size(min = 2, max = 250)
+	@Size(min = 2, max = 254)
 	private String name;
 }

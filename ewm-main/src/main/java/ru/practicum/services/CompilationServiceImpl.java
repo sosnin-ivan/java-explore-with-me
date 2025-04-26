@@ -43,7 +43,7 @@ public class CompilationServiceImpl implements CompilationService {
 
 	@Override
 	public List<CompilationDto> getCompilations(Boolean pinned, Pageable pageable) {
-		List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageable);
+		List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageable).getContent();
 		List<CompilationDto> listOfCompilationDto = new ArrayList<>();
 		for (Compilation compilation : compilations) {
 			Map<Long, Long> viewStats = eventUtils.getViews(compilation.getEvents());

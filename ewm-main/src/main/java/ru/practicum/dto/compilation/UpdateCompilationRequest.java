@@ -14,5 +14,5 @@ public class UpdateCompilationRequest {
 	@Size(min = 1, max = 50)
 	private String title;
 
-	private List<Long> events;
+	private List<Long> events = List.of();
 }
