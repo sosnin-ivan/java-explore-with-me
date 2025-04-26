@@ -12,6 +12,7 @@ import java.util.List;
 public interface RequestRepository extends JpaRepository<Request, Long> {
 	interface EventRequestCount {
 		Long getEventId();
+
 		Long getCount();
 	}
 
@@ -23,6 +24,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 			@Param("ids") List<Long> ids,
 			@Param("status") RequestStatus status
 	);
+
 	List<Request> findAllByEvent(Event event);
 
 	List<Request> findAllByRequesterId(Long userId);
