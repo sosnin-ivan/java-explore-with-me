@@ -30,13 +30,14 @@ import java.util.stream.Collectors;
 public class CompilationServiceImpl implements CompilationService {
 	CompilationRepository compilationRepository;
 	EventRepository eventRepository;
+	EventUtils eventUtils;
 
 	@Override
 	@Transactional
 	public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
 		List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
 		Compilation compilation = CompilationMapper.toCompilation(newCompilationDto, events);
-		List<EventShortDto> eventsShortDto = EventUtils.getListOfEventShortDto(events);
+		List<EventShortDto> eventsShortDto = eventUtils.getListOfEventShortDto(events);
 		return CompilationMapper.toCompilationDto(compilationRepository.save(compilation), eventsShortDto);
 	}
 
@@ -45,8 +46,8 @@ public class CompilationServiceImpl implements CompilationService {
 		List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageable);
 		List<CompilationDto> listOfCompilationDto = new ArrayList<>();
 		for (Compilation compilation : compilations) {
-			Map<Long, Long> viewStats = EventUtils.getViews(compilation.getEvents());
-			Map<Long, Long> confirmedRequests = EventUtils.getConfirmedRequests(compilation.getEvents());
+			Map<Long, Long> viewStats = eventUtils.getViews(compilation.getEvents());
+			Map<Long, Long> confirmedRequests = eventUtils.getConfirmedRequests(compilation.getEvents());
 			List<EventShortDto> eventsShortDto = compilation.getEvents().stream()
 					.map(event -> EventMapper.toEventShortDto(
 							event,
@@ -61,8 +62,8 @@ public class CompilationServiceImpl implements CompilationService {
 	@Override
 	public CompilationDto getCompilation(Long compilationId) {
 		Compilation compilation = findCompilation(compilationId);
-		Map<Long, Long> viewStats = EventUtils.getViews(compilation.getEvents());
-		Map<Long, Long> confirmedRequests = EventUtils.getConfirmedRequests(compilation.getEvents());
+		Map<Long, Long> viewStats = eventUtils.getViews(compilation.getEvents());
+		Map<Long, Long> confirmedRequests = eventUtils.getConfirmedRequests(compilation.getEvents());
 		List<EventShortDto> listOfEventShortDto = compilation.getEvents().stream()
 				.map(event -> EventMapper.toEventShortDto(event,
 						viewStats.getOrDefault(event.getId(), 0L),
@@ -83,7 +84,7 @@ public class CompilationServiceImpl implements CompilationService {
 		if (updateCompilationRequest.getTitle() != null) {
 			compilation.setTitle(updateCompilationRequest.getTitle());
 		}
-		List<EventShortDto> eventsShortDto = EventUtils.getListOfEventShortDto(events);
+		List<EventShortDto> eventsShortDto = eventUtils.getListOfEventShortDto(events);
 		return CompilationMapper.toCompilationDto(compilationRepository.save(compilation), eventsShortDto);
 	}
 

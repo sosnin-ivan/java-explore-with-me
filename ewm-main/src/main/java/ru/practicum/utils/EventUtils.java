@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
 public class EventUtils {
 	public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-	static RequestRepository requestRepository;
-	static HitClient hitClient;
+	RequestRepository requestRepository;
+	HitClient hitClient;
 
-	public static Map<Long, Long> getViews(List<Event> events) {
+	public Map<Long, Long> getViews(List<Event> events) {
 		Map<String, Long> eventUrisAndIds = events.stream()
 				.collect(Collectors.toMap(
 						event -> String.format("/events/%s", event.getId()),
@@ -58,7 +58,7 @@ public class EventUtils {
 		return statsMap;
 	}
 
-	public static void saveView(HttpServletRequest request) {
+	public void saveView(HttpServletRequest request) {
 		hitClient.addHit(HitRequest.builder()
 				.app("${app}")
 				.uri(request.getRequestURI())
@@ -67,8 +67,8 @@ public class EventUtils {
 				.build());
 	}
 
-	public static List<EventShortDto> getListOfEventShortDto(List<Event> events) {
-		Map<Long, Long> viewStats = EventUtils.getViews(events);
+	public List<EventShortDto> getListOfEventShortDto(List<Event> events) {
+		Map<Long, Long> viewStats = getViews(events);
 		Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
 		return events.stream()
 				.map(event -> EventMapper.toEventShortDto(
@@ -78,13 +78,13 @@ public class EventUtils {
 				.collect(Collectors.toList());
 	}
 
-	public static Map<Long, Long> getConfirmedRequests(List<Event> events) {
+	public Map<Long, Long> getConfirmedRequests(List<Event> events) {
 		if (events.isEmpty()) return Collections.emptyMap();
 		List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
 		return requestRepository.findByStatus(ids, RequestStatus.CONFIRMED);
 	}
 
-	private static Long parseEventIdFromUrl(String url) {
+	private Long parseEventIdFromUrl(String url) {
 		String[] parts = url.split("/events/");
 		if (parts.length == 2) {
 			return Long.parseLong(parts[1]);

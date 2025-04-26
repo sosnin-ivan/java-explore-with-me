@@ -39,6 +39,7 @@ public class EventServiceImpl implements EventService {
 	UserRepository userRepository;
 	LocationRepository locationRepository;
 	RequestRepository requestRepository;
+	EventUtils eventUtils;
 
 	@Override
 	@Transactional
@@ -56,7 +57,7 @@ public class EventServiceImpl implements EventService {
 		findUser(userId);
 		Event event = findEvent(eventId);
 		Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
-		Map<Long, Long> viewStats = EventUtils.getViews(List.of(event));
+		Map<Long, Long> viewStats = eventUtils.getViews(List.of(event));
 		return EventMapper.toEventFullDto(
 				event,
 				confirmedRequests.getOrDefault(eventId, 0L),
@@ -71,7 +72,7 @@ public class EventServiceImpl implements EventService {
 			return List.of();
 		}
 		Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
-		Map<Long, Long> viewStats = EventUtils.getViews(events);
+		Map<Long, Long> viewStats = eventUtils.getViews(events);
 		return events.stream()
 				.map(event -> EventMapper.toEventShortDto(
 						event,
@@ -86,9 +87,9 @@ public class EventServiceImpl implements EventService {
 		if (event.getState() != EventState.PUBLISHED) {
 			throw new NotFoundException("Событие не опубликовано");
 		}
-		EventUtils.saveView(request);
+		eventUtils.saveView(request);
 
-		Map<Long, Long> viewStats = EventUtils.getViews(List.of(event));
+		Map<Long, Long> viewStats = eventUtils.getViews(List.of(event));
 		Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
 		return EventMapper.toEventFullDto(
 				event,
@@ -112,9 +113,9 @@ public class EventServiceImpl implements EventService {
 		if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
 			throw new IllegalArgumentException("Ошибка даты");
 		}
-		EventUtils.saveView(request);
+		eventUtils.saveView(request);
 		List<Event> events = eventRepository.publicSearchEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable).getContent();
-		Map<Long, Long> viewStats = EventUtils.getViews(events);
+		Map<Long, Long> viewStats = eventUtils.getViews(events);
 		switch (sort) {
 			case EventSortType.VIEWS:
 				events = events
@@ -127,7 +128,7 @@ public class EventServiceImpl implements EventService {
 						.sorted(Comparator.comparing(Event::getEventDate))
 						.collect(Collectors.toList());
 			default:
-				return EventUtils.getListOfEventShortDto(events);
+				return eventUtils.getListOfEventShortDto(events);
 		}
 	}
 
@@ -141,7 +142,7 @@ public class EventServiceImpl implements EventService {
 			Pageable pageable
 	) {
 		List<Event> events = eventRepository.adminSearchEvents(users, states, categories, rangeStart, rangeEnd, pageable).getContent();
-		Map<Long, Long> viewStats = EventUtils.getViews(events);
+		Map<Long, Long> viewStats = eventUtils.getViews(events);
 		Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
 		return events.stream()
 				.map(event -> EventMapper.toEventFullDto(
@@ -176,7 +177,7 @@ public class EventServiceImpl implements EventService {
 
 		Event updatedEvent = eventRepository.save(event);
 		Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(updatedEvent));
-		Map<Long, Long> viewStats = EventUtils.getViews(List.of(updatedEvent));
+		Map<Long, Long> viewStats = eventUtils.getViews(List.of(updatedEvent));
 		return EventMapper.toEventFullDto(
 				event,
 				confirmedRequests.getOrDefault(eventId, 0L),
