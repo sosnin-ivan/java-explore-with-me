@@ -2,10 +2,12 @@ package ru.practicum.services;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
+import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.event.*;
@@ -67,10 +69,7 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public List<EventShortDto> getUserEvents(Long userId, Pageable pageable) {
-		List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable);
-		if (events == null) {
-			return List.of();
-		}
+		List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable).getContent();
 		Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
 		Map<Long, Long> viewStats = eventUtils.getViews(events);
 		return events.stream()
@@ -114,7 +113,10 @@ public class EventServiceImpl implements EventService {
 			throw new IllegalArgumentException("Ошибка даты");
 		}
 		eventUtils.saveView(request);
-		List<Event> events = eventRepository.publicSearchEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable).getContent();
+
+		Specification<Event> spec = buildPublicSearchSpec(text, categories, paid, rangeStart, rangeEnd, onlyAvailable);
+		List<Event> events = eventRepository.findAll(spec, pageable).getContent();
+
 		Map<Long, Long> viewStats = eventUtils.getViews(events);
 		switch (sort) {
 			case EventSortType.VIEWS:
@@ -141,7 +143,9 @@ public class EventServiceImpl implements EventService {
 			LocalDateTime rangeEnd,
 			Pageable pageable
 	) {
-		List<Event> events = eventRepository.adminSearchEvents(users, states, categories, rangeStart, rangeEnd, pageable).getContent();
+		Specification<Event> spec = buildAdminSearchSpec(users, states, categories, rangeStart, rangeEnd);
+		List<Event> events = eventRepository.findAll(spec, pageable).getContent();
+
 		Map<Long, Long> viewStats = eventUtils.getViews(events);
 		Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
 		return events.stream()
@@ -280,5 +284,95 @@ public class EventServiceImpl implements EventService {
 				LocalDateTime.now().isAfter(event.getEventDate())) {
 			throw new ValidationException("Ошибка даты: событие уже прошло или до даты оосталось менее часа");
 		}
+	}
+
+	private Specification<Event> buildPublicSearchSpec(
+			String text,
+			List<Long> categories,
+			Boolean paid,
+			LocalDateTime rangeStart,
+			LocalDateTime rangeEnd,
+			Boolean onlyAvailable
+	) {
+		return (root, query, criteriaBuilder) -> {
+			List<Predicate> predicates = new ArrayList<>();
+
+			if (text != null && !text.isBlank()) {
+				Predicate annotationLike = criteriaBuilder.like(
+						criteriaBuilder.lower(root.get("annotation")),
+						"%" + text.toLowerCase() + "%"
+				);
+				Predicate descriptionLike = criteriaBuilder.like(
+						criteriaBuilder.lower(root.get("description")),
+						"%" + text.toLowerCase() + "%"
+				);
+				predicates.add(criteriaBuilder.or(annotationLike, descriptionLike));
+			}
+
+			if (categories != null && !categories.isEmpty()) {
+				predicates.add(root.get("category").get("id").in(categories));
+			}
+
+			if (paid != null) {
+				predicates.add(criteriaBuilder.equal(root.get("paid"), paid));
+			}
+
+			if (rangeStart != null) {
+				predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), rangeStart));
+			}
+
+			if (rangeEnd != null) {
+				predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("eventDate"), rangeEnd));
+			}
+
+			if (Boolean.TRUE.equals(onlyAvailable)) {
+				predicates.add(
+						criteriaBuilder.or(
+								criteriaBuilder.equal(root.get("participantLimit"), 0),
+								criteriaBuilder.lessThan(
+										root.get("confirmedRequests"),
+										root.get("participantLimit")
+								)
+						)
+				);
+			}
+			predicates.add(criteriaBuilder.equal(root.get("state"), EventState.PUBLISHED));
+
+			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+		};
+	}
+
+	private Specification<Event> buildAdminSearchSpec(
+			List<Long> users,
+			List<EventState> states,
+			List<Long> categories,
+			LocalDateTime rangeStart,
+			LocalDateTime rangeEnd
+	) {
+		return (root, query, criteriaBuilder) -> {
+			List<Predicate> predicates = new ArrayList<>();
+
+			if (users != null && !users.isEmpty()) {
+				predicates.add(root.get("initiator").get("id").in(users));
+			}
+
+			if (states != null && !states.isEmpty()) {
+				predicates.add(root.get("state").in(states));
+			}
+
+			if (categories != null && !categories.isEmpty()) {
+				predicates.add(root.get("category").get("id").in(categories));
+			}
+
+			if (rangeStart != null) {
+				predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), rangeStart));
+			}
+
+			if (rangeEnd != null) {
+				predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("eventDate"), rangeEnd));
+			}
+
+			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+		};
 	}
 }

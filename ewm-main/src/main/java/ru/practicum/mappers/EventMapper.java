@@ -8,12 +8,13 @@ import ru.practicum.models.Category;
 import ru.practicum.models.Event;
 import ru.practicum.models.Location;
 import ru.practicum.models.User;
+import ru.practicum.utils.Constants;
 
 import java.time.format.DateTimeFormatter;
 
 @Component
 public class EventMapper {
-	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(Constants.DATE_TIME_FORMAT);
 
 	public static Event toEvent(NewEventDto newEventDto, User initiator, Category category, Location location) {
 		if (newEventDto == null) {

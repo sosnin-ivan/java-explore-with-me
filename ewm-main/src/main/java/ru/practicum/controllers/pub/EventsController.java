@@ -14,6 +14,7 @@ import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.enums.EventSortType;
 import ru.practicum.services.interfaces.EventService;
+import ru.practicum.utils.Constants;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +24,6 @@ import java.util.List;
 @RestController("publicEventsController")
 @RequestMapping("/events")
 public class EventsController {
-	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	private final EventService eventService;
 
 	@GetMapping("/{eventId}")
@@ -41,8 +41,8 @@ public class EventsController {
 			@RequestParam(required = false) String text,
 			@RequestParam(required = false) List<Long> categories,
 			@RequestParam(required = false) Boolean paid,
-			@RequestParam(required = false) @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeStart,
-			@RequestParam(required = false) @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeEnd,
+			@RequestParam(required = false) @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT) LocalDateTime rangeStart,
+			@RequestParam(required = false) @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT) LocalDateTime rangeEnd,
 			@RequestParam(defaultValue = "false") Boolean onlyAvailable,
 			@RequestParam(defaultValue = "EVENT_DATE") EventSortType sort,
 			@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,

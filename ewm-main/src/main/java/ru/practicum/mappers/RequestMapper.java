@@ -3,12 +3,13 @@ package ru.practicum.mappers;
 import org.springframework.stereotype.Component;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.models.Request;
+import ru.practicum.utils.Constants;
 
 import java.time.format.DateTimeFormatter;
 
 @Component
 public class RequestMapper {
-	public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(Constants.DATE_TIME_FORMAT);
 
 	public static ParticipationRequestDto toParticipationRequestDto(Request request) {
 		if (request == null) {

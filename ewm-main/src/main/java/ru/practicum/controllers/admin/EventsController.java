@@ -14,6 +14,7 @@ import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
 import ru.practicum.enums.EventState;
 import ru.practicum.services.interfaces.EventService;
+import ru.practicum.utils.Constants;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +24,6 @@ import java.util.List;
 @RestController("adminEventsController")
 @RequestMapping("/admin/events")
 public class EventsController {
-	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	private final EventService eventService;
 
 	@GetMapping
@@ -31,8 +31,8 @@ public class EventsController {
 			@RequestParam(required = false) List<Long> users,
 			@RequestParam(required = false) List<EventState> states,
 			@RequestParam(required = false) List<Long> categories,
-			@RequestParam(required = false) @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeStart,
-			@RequestParam(required = false) @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeEnd,
+			@RequestParam(required = false) @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT) LocalDateTime rangeStart,
+			@RequestParam(required = false) @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT) LocalDateTime rangeEnd,
 			@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
 			@RequestParam(defaultValue = "10") @Positive Integer size
 	) {
