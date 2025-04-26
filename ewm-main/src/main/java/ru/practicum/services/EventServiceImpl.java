@@ -14,7 +14,6 @@ import ru.practicum.dto.event.*;
 import ru.practicum.enums.EventSortType;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.EventStateAction;
-import ru.practicum.enums.RequestStatus;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.EventMapper;
@@ -40,7 +39,6 @@ public class EventServiceImpl implements EventService {
 	CategoryRepository categoryRepository;
 	UserRepository userRepository;
 	LocationRepository locationRepository;
-	RequestRepository requestRepository;
 	EventUtils eventUtils;
 
 	@Override
@@ -58,7 +56,7 @@ public class EventServiceImpl implements EventService {
 	public EventFullDto getUserEvent(Long userId, Long eventId) {
 		findUser(userId);
 		Event event = findEvent(eventId);
-		Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
+		Map<Long, Long> confirmedRequests = eventUtils.getConfirmedRequests(List.of(event));
 		Map<Long, Long> viewStats = eventUtils.getViews(List.of(event));
 		return EventMapper.toEventFullDto(
 				event,
@@ -70,7 +68,7 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public List<EventShortDto> getUserEvents(Long userId, Pageable pageable) {
 		List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable).getContent();
-		Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
+		Map<Long, Long> confirmedRequests = eventUtils.getConfirmedRequests(events);
 		Map<Long, Long> viewStats = eventUtils.getViews(events);
 		return events.stream()
 				.map(event -> EventMapper.toEventShortDto(
@@ -89,7 +87,7 @@ public class EventServiceImpl implements EventService {
 		eventUtils.saveView(request);
 
 		Map<Long, Long> viewStats = eventUtils.getViews(List.of(event));
-		Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(event));
+		Map<Long, Long> confirmedRequests = eventUtils.getConfirmedRequests(List.of(event));
 		return EventMapper.toEventFullDto(
 				event,
 				confirmedRequests.getOrDefault(event.getId(), 0L),
@@ -147,7 +145,7 @@ public class EventServiceImpl implements EventService {
 		List<Event> events = eventRepository.findAll(spec, pageable).getContent();
 
 		Map<Long, Long> viewStats = eventUtils.getViews(events);
-		Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
+		Map<Long, Long> confirmedRequests = eventUtils.getConfirmedRequests(events);
 		return events.stream()
 				.map(event -> EventMapper.toEventFullDto(
 						event,
@@ -180,7 +178,7 @@ public class EventServiceImpl implements EventService {
 		updateEventUserState(event, updateEventUserRequest.getStateAction());
 
 		Event updatedEvent = eventRepository.save(event);
-		Map<Long, Long> confirmedRequests = getConfirmedRequests(List.of(updatedEvent));
+		Map<Long, Long> confirmedRequests = eventUtils.getConfirmedRequests(List.of(updatedEvent));
 		Map<Long, Long> viewStats = eventUtils.getViews(List.of(updatedEvent));
 		return EventMapper.toEventFullDto(
 				event,
@@ -237,12 +235,6 @@ public class EventServiceImpl implements EventService {
 					throw new ValidationException(String.format("Непредусмотренный тип операции: %s", stateAction));
 			}
 		}
-	}
-
-	private Map<Long, Long> getConfirmedRequests(List<Event> events) {
-		if (events.isEmpty()) return Collections.emptyMap();
-		List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
-		return requestRepository.findByStatus(ids, RequestStatus.CONFIRMED);
 	}
 
 	private Event findEvent(Long eventId) {

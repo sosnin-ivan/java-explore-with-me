@@ -81,7 +81,11 @@ public class EventUtils {
 	public Map<Long, Long> getConfirmedRequests(List<Event> events) {
 		if (events.isEmpty()) return Collections.emptyMap();
 		List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
-		return requestRepository.findByStatus(ids, RequestStatus.CONFIRMED);
+		return requestRepository.findByStatus(ids, RequestStatus.CONFIRMED).stream()
+				.collect(Collectors.toMap(
+						RequestRepository.EventRequestCount::getEventId,
+						RequestRepository.EventRequestCount::getCount
+				));
 	}
 
 	private Long parseEventIdFromUrl(String url) {
