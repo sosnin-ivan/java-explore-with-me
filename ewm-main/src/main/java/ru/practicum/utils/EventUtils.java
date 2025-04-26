@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.HitClient;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.enums.RequestStatus;
-import ru.practicum.hit.HitRequest;
 import ru.practicum.hit.HitResponse;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.models.Event;
@@ -59,12 +58,7 @@ public class EventUtils {
 	}
 
 	public void saveView(HttpServletRequest request) {
-		hitClient.addHit(HitRequest.builder()
-				.app("${app}")
-				.uri(request.getRequestURI())
-				.ip(request.getRemoteAddr())
-				.timestamp(LocalDateTime.now())
-				.build());
+		hitClient.addHit(request);
 	}
 
 	public List<EventShortDto> getListOfEventShortDto(List<Event> events) {

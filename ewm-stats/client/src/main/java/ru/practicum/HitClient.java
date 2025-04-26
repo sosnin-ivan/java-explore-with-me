@@ -1,5 +1,6 @@
 package ru.practicum;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -11,22 +12,26 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.hit.HitRequest;
 import ru.practicum.hit.HitResponse;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 public class HitClient extends BaseClient {
-	// TODO: move to application.yaml
-	private static final String SERVER_URL = "http://localhost:8080";
-
 	public HitClient(RestTemplateBuilder builder) {
 		super(builder
-				.uriTemplateHandler(new DefaultUriBuilderFactory(SERVER_URL))
+				.uriTemplateHandler(new DefaultUriBuilderFactory("http://ewm-stats-server:9090"))
 				.requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
 				.build());
 	}
 
-	public void addHit(HitRequest hitRequest) {
-		post(hitRequest);
+	public void addHit(HttpServletRequest request) {
+		post(HitRequest.builder()
+				.app("ewm-main-service")
+				.uri(request.getRequestURI())
+				.ip(request.getRemoteAddr())
+				.timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+				.build());
 	}
 
 	public List<HitResponse> getStats(String start, String end, List<String> uris, boolean unique) {

@@ -4,8 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 public class HitRequest {
@@ -19,5 +17,5 @@ public class HitRequest {
     private String ip;
 
     @NotNull
-    private LocalDateTime timestamp;
+    private String timestamp;
 }

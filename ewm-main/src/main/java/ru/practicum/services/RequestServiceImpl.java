@@ -43,7 +43,7 @@ public class RequestServiceImpl implements RequestService {
 		Request request = Request.builder()
 				.requester(requester)
 				.event(event)
-				.status(!event.getRequestModeration() ? RequestStatus.CONFIRMED : RequestStatus.PENDING)
+				.status(setRequestStatus(event))
 				.build();
 		return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
 	}
@@ -56,6 +56,16 @@ public class RequestServiceImpl implements RequestService {
 			return List.of();
 		}
 		return requests.stream().map(RequestMapper::toParticipationRequestDto).toList();
+	}
+
+	private RequestStatus setRequestStatus(Event event) {
+		if (event.getRequestModeration()) {
+			return RequestStatus.PENDING;
+		} else if (event.getParticipantLimit() == 0) {
+			return RequestStatus.CONFIRMED;
+		} else {
+			return RequestStatus.PENDING;
+		}
 	}
 
 	@Override
