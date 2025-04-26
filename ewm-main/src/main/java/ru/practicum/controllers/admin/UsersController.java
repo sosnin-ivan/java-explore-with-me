@@ -42,7 +42,7 @@ public class UsersController {
 
 	@GetMapping
 	public ResponseEntity<List<UserDto>> getUsers(
-			@RequestParam List<Long> ids,
+			@RequestParam(required = false) List<Long> ids,
 			@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
 			@RequestParam(defaultValue = "10") @Positive Integer size
 	) {
