@@ -58,16 +58,6 @@ public class RequestServiceImpl implements RequestService {
 		return requests.stream().map(RequestMapper::toParticipationRequestDto).toList();
 	}
 
-	private RequestStatus setRequestStatus(Event event) {
-		if (event.getRequestModeration()) {
-			return RequestStatus.PENDING;
-		} else if (event.getParticipantLimit() == 0) {
-			return RequestStatus.CONFIRMED;
-		} else {
-			return RequestStatus.PENDING;
-		}
-	}
-
 	@Override
 	@Transactional
 	public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
@@ -130,6 +120,14 @@ public class RequestServiceImpl implements RequestService {
 				.confirmedRequests(confirmedRequests)
 				.rejectedRequests(rejectedRequests)
 				.build();
+	}
+
+	private RequestStatus setRequestStatus(Event event) {
+		if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
+			return RequestStatus.CONFIRMED;
+		} else {
+			return RequestStatus.PENDING;
+		}
 	}
 
 	private List<ParticipationRequestDto> mapRequests(List<Request> userRequests, RequestStatus status) {
