@@ -1,5 +1,6 @@
 package ru.practicum.exceptions;
 
+import jakarta.validation.ValidationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -41,6 +42,13 @@ public class ErrorHandler {
     public ProblemDetail handleUserAlreadyExists(DataIntegrityViolationException e) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
         problem.setTitle("Conflict");
+        return problem;
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ProblemDetail handleValidationException(final ValidationException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problem.setTitle("Bad Request");
         return problem;
     }
 }

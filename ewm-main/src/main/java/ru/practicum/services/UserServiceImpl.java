@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
 					.map(UserMapper::toUserDto)
 					.collect(Collectors.toList());
 		} else {
-			return userRepository.findAll().stream()
+			return userRepository.findAll(pageable).getContent().stream()
 					.map(UserMapper::toUserDto)
 					.collect(Collectors.toList());
 		}
