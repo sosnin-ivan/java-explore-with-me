@@ -16,7 +16,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.variables.set('eventId', pm.collectionVariables.get('eventId'));"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -39,7 +39,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/comments?eventId={{eventId}}&from=0&size=10",
+							"raw": "{{base_url}}/comments?eventId=1&from=0&size=10",
 							"host": [
 								"{{base_url}}"
 							],
@@ -49,7 +49,7 @@
 							"query": [
 								{
 									"key": "eventId",
-									"value": "{{eventId}}"
+									"value": "1"
 								},
 								{
 									"key": "from",
@@ -76,7 +76,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.variables.set('userId', pm.collectionVariables.get('userId'));"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -105,16 +105,16 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"text\": \"Тестовый комментарий\",\n  \"eventId\": {{eventId}}\n}"
+							"raw": "{\n  \"text\": \"Тестовый комментарий\",\n  \"eventId\": 1\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/users/{{userId}}/comments",
+							"raw": "{{base_url}}/users/1/comments",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"users",
-								"{{userId}}",
+								"1",
 								"comments"
 							]
 						}
@@ -140,8 +140,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.variables.set('userId', pm.collectionVariables.get('userId'));\r",
-									"pm.variables.set('commentId', pm.collectionVariables.get('commentId'));"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -161,15 +160,15 @@
 							"raw": "{\n  \"text\": \"Обновленный комментарий\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/users/{{userId}}/comments/{{commentId}}",
+							"raw": "{{base_url}}/users/1/comments/1",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"users",
-								"{{userId}}",
+								"1",
 								"comments",
-								"{{commentId}}"
+								"1"
 							]
 						}
 					},
@@ -194,8 +193,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.variables.set('userId', pm.collectionVariables.get('userId'));\r",
-									"pm.variables.set('commentId', pm.collectionVariables.get('commentId'));"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -206,15 +204,15 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/users/{{userId}}/comments/{{commentId}}",
+							"raw": "{{base_url}}/users/1/comments/1",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"users",
-								"{{userId}}",
+								"1",
 								"comments",
-								"{{commentId}}"
+								"1"
 							]
 						}
 					},
@@ -244,7 +242,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.variables.set('userId', pm.collectionVariables.get('userId'));"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -255,7 +253,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/admin/comments/users/{{userId}}?from=0&size=10",
+							"raw": "{{base_url}}/admin/comments/users/1?from=0&size=10",
 							"host": [
 								"{{base_url}}"
 							],
@@ -263,7 +261,7 @@
 								"admin",
 								"comments",
 								"users",
-								"{{userId}}"
+								"1"
 							],
 							"query": [
 								{
@@ -298,7 +296,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.variables.set('commentId', pm.collectionVariables.get('commentId'));"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -323,14 +321,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/admin/comments/{{commentId}}",
+							"raw": "{{base_url}}/admin/comments/2",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"admin",
 								"comments",
-								"{{commentId}}"
+								"2"
 							]
 						}
 					},
@@ -355,7 +353,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.variables.set('commentId', pm.collectionVariables.get('commentId'));"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -366,14 +364,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/admin/comments/{{commentId}}",
+							"raw": "{{base_url}}/admin/comments/2",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"admin",
 								"comments",
-								"{{commentId}}"
+								"2"
 							]
 						}
 					},
@@ -389,7 +387,7 @@
 				"type": "text/javascript",
 				"packages": {},
 				"exec": [
-					"const userResponse = await pm.sendRequest({\r",
+					"await pm.sendRequest({\r",
 					"    url: pm.variables.get('base_url') + '/admin/users',\r",
 					"    method: 'POST',\r",
 					"    header: { 'Content-Type': 'application/json' },\r",
@@ -401,10 +399,8 @@
 					"        })\r",
 					"    }\r",
 					"});\r",
-					"const user = userResponse.json();\r",
-					"pm.variables.set('userId', user.id);\r",
 					"\r",
-					"const categoryResponse = await pm.sendRequest({\r",
+					"await pm.sendRequest({\r",
 					"    url: pm.variables.get('base_url') + '/admin/categories',\r",
 					"    method: 'POST',\r",
 					"    header: { 'Content-Type': 'application/json' },\r",
@@ -415,8 +411,6 @@
 					"        })\r",
 					"    }\r",
 					"});\r",
-					"const category = categoryResponse.json();\r",
-					"pm.variables.set('categoryId', category.id);\r",
 					"\r",
 					"function formatDate(date) {\r",
 					"    const pad = num => num.toString().padStart(2, '0');\r",
@@ -426,7 +420,7 @@
 					"const tomorrow = new Date();\r",
 					"tomorrow.setDate(tomorrow.getDate() + 1);\r",
 					"\r",
-					"const eventResponse = await pm.sendRequest({\r",
+					"await pm.sendRequest({\r",
 					"    url: pm.variables.get('base_url') + '/users/' + pm.variables.get('userId') + '/events',\r",
 					"    method: 'POST',\r",
 					"    header: { 'Content-Type': 'application/json' },\r",
@@ -448,8 +442,6 @@
 					"        })\r",
 					"    }\r",
 					"});\r",
-					"const event = eventResponse.json();\r",
-					"pm.variables.set('eventId', event.id);\r",
 					"\r",
 					"await pm.sendRequest({\r",
 					"    url: pm.variables.get('base_url') + '/admin/events/' + pm.variables.get('eventId'),\r",
@@ -463,7 +455,7 @@
 					"    }\r",
 					"});\r",
 					"\r",
-					"const commentResponse = await pm.sendRequest({\r",
+					"await pm.sendRequest({\r",
 					"    url: `${pm.collectionVariables.get('base_url')}/users/${pm.variables.get('userId')}/comments`,\r",
 					"    method: 'POST',\r",
 					"    header: { 'Content-Type': 'application/json' },\r",
@@ -475,8 +467,19 @@
 					"        })\r",
 					"    }\r",
 					"});\r",
-					"const comment = commentResponse.json();\r",
-					"pm.variables.set('commentId', comment.id);"
+					"\r",
+					"await pm.sendRequest({\r",
+					"    url: `${pm.collectionVariables.get('base_url')}/users/${pm.variables.get('userId')}/comments`,\r",
+					"    method: 'POST',\r",
+					"    header: { 'Content-Type': 'application/json' },\r",
+					"    body: {\r",
+					"        mode: 'raw',\r",
+					"        raw: JSON.stringify({\r",
+					"            text: \"Комментарий из pre-request\",\r",
+					"            eventId: pm.variables.get('eventId')\r",
+					"        })\r",
+					"    }\r",
+					"});"
 				]
 			}
 		},
