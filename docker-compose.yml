@@ -1,21 +1,21 @@
 services:
-  ewm_stats:
+  ewm-stats:
     build:
       context: ./ewm-stats/server
-    image: ewm_stats_server
-    container_name: ewm_stats_server
+    image: ewm-stats-server
+    container_name: ewm-stats-server
     ports:
       - "9090:9090"
     depends_on:
-      - ewm_stats_db
+      - ewm-stats-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm_stats_db:5432/explore_with_me_stats
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-stats-db:5432/explore_with_me_stats
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
 
-  ewm_stats_db:
+  ewm-stats-db:
     image: postgres:16.1
-    container_name: ewm_stats_db
+    container_name: ewm-stats-db
     ports:
       - "6541:5432"
     environment:
@@ -28,23 +28,23 @@ services:
       interval: 5s
       retries: 10
 
-  ewm_main:
+  ewm-main:
     build:
-      context: ./ewm-main
-    image: ewm_main_server
-    container_name: ewm_main_server
+      context: ./ewm-main/
+    image: ewm-main-server
+    container_name: ewm-main-server
     ports:
       - "8080:8080"
     depends_on:
-      - ewm_main_db
+      - ewm-main-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm_main_db:5432/explore_with_me_main
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-main-db:5432/explore_with_me_main
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
 
-  ewm_main_db:
+  ewm-main-db:
     image: postgres:16.1
-    container_name: ewm_main_db
+    container_name: ewm-main-db
     ports:
       - "6542:5432"
     environment:

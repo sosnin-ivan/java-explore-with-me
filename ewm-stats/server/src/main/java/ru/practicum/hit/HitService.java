@@ -19,6 +19,9 @@ public class HitService {
 	}
 
 	public List<HitResponse> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+		if (start.isAfter(end)) {
+			throw new IllegalArgumentException("Начало периода не может быть позже конца периода");
+		}
 		if (unique) {
 			return hitRepository.findUnique(start, end, uris);
 		} else {
