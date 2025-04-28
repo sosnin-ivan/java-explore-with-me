@@ -14,14 +14,12 @@ import ru.practicum.dto.event.*;
 import ru.practicum.enums.EventSortType;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.EventStateAction;
+import ru.practicum.enums.RequestStatus;
 import ru.practicum.exceptions.ConflictException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.mappers.EventMapper;
 import ru.practicum.mappers.LocationMapper;
-import ru.practicum.models.Category;
-import ru.practicum.models.Event;
-import ru.practicum.models.Location;
-import ru.practicum.models.User;
+import ru.practicum.models.*;
 import ru.practicum.repositories.*;
 import ru.practicum.services.interfaces.EventService;
 import ru.practicum.utils.EventUtils;
@@ -39,6 +37,7 @@ public class EventServiceImpl implements EventService {
 	CategoryRepository categoryRepository;
 	UserRepository userRepository;
 	LocationRepository locationRepository;
+	RequestRepository requestRepository;
 	EventUtils eventUtils;
 
 	@Override
@@ -112,9 +111,13 @@ public class EventServiceImpl implements EventService {
 		}
 		eventUtils.saveView(request);
 
-		Specification<Event> spec = buildPublicSearchSpec(text, categories, paid, rangeStart, rangeEnd, onlyAvailable);
+		Specification<Event> spec = buildPublicSearchSpec(text, categories, paid, rangeStart, rangeEnd);
 		List<Event> events = eventRepository.findAll(spec, pageable).getContent();
-
+		if (Boolean.TRUE.equals(onlyAvailable)) {
+			events = events.stream()
+					.filter(this::isEventAvailable)
+					.collect(Collectors.toList());
+		}
 		Map<Long, Long> viewStats = eventUtils.getViews(events);
 		switch (sort) {
 			case EventSortType.VIEWS:
@@ -283,12 +286,10 @@ public class EventServiceImpl implements EventService {
 			List<Long> categories,
 			Boolean paid,
 			LocalDateTime rangeStart,
-			LocalDateTime rangeEnd,
-			Boolean onlyAvailable
+			LocalDateTime rangeEnd
 	) {
 		return (root, query, criteriaBuilder) -> {
 			List<Predicate> predicates = new ArrayList<>();
-
 			if (text != null && !text.isBlank()) {
 				Predicate annotationLike = criteriaBuilder.like(
 						criteriaBuilder.lower(root.get("annotation")),
@@ -300,36 +301,19 @@ public class EventServiceImpl implements EventService {
 				);
 				predicates.add(criteriaBuilder.or(annotationLike, descriptionLike));
 			}
-
 			if (categories != null && !categories.isEmpty()) {
 				predicates.add(root.get("category").get("id").in(categories));
 			}
-
 			if (paid != null) {
 				predicates.add(criteriaBuilder.equal(root.get("paid"), paid));
 			}
-
 			if (rangeStart != null) {
 				predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), rangeStart));
 			}
-
 			if (rangeEnd != null) {
 				predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("eventDate"), rangeEnd));
 			}
-
-			if (Boolean.TRUE.equals(onlyAvailable)) {
-				predicates.add(
-						criteriaBuilder.or(
-								criteriaBuilder.equal(root.get("participantLimit"), 0),
-								criteriaBuilder.lessThan(
-										root.get("confirmedRequests"),
-										root.get("participantLimit")
-								)
-						)
-				);
-			}
 			predicates.add(criteriaBuilder.equal(root.get("state"), EventState.PUBLISHED));
-
 			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 		};
 	}
@@ -343,28 +327,30 @@ public class EventServiceImpl implements EventService {
 	) {
 		return (root, query, criteriaBuilder) -> {
 			List<Predicate> predicates = new ArrayList<>();
-
 			if (users != null && !users.isEmpty()) {
 				predicates.add(root.get("initiator").get("id").in(users));
 			}
-
 			if (states != null && !states.isEmpty()) {
 				predicates.add(root.get("state").in(states));
 			}
-
 			if (categories != null && !categories.isEmpty()) {
 				predicates.add(root.get("category").get("id").in(categories));
 			}
-
 			if (rangeStart != null) {
 				predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), rangeStart));
 			}
-
 			if (rangeEnd != null) {
 				predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("eventDate"), rangeEnd));
 			}
-
 			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 		};
+	}
+
+	private boolean isEventAvailable(Event event) {
+		if (event.getParticipantLimit() == 0) {
+			return true;
+		}
+		long confirmedRequests = requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED);
+		return confirmedRequests < event.getParticipantLimit();
 	}
 }

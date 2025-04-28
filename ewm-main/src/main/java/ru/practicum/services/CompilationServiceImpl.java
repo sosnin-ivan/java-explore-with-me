@@ -44,19 +44,18 @@ public class CompilationServiceImpl implements CompilationService {
 	@Override
 	public List<CompilationDto> getCompilations(Boolean pinned, Pageable pageable) {
 		List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageable).getContent();
-		List<CompilationDto> listOfCompilationDto = new ArrayList<>();
-		for (Compilation compilation : compilations) {
-			Map<Long, Long> viewStats = eventUtils.getViews(compilation.getEvents());
-			Map<Long, Long> confirmedRequests = eventUtils.getConfirmedRequests(compilation.getEvents());
-			List<EventShortDto> eventsShortDto = compilation.getEvents().stream()
-					.map(event -> EventMapper.toEventShortDto(
-							event,
-							confirmedRequests.getOrDefault(event.getId(), 0L),
-							viewStats.getOrDefault(event.getId(), 0L)))
-					.toList();
-			listOfCompilationDto.add(CompilationMapper.toCompilationDto(compilation, eventsShortDto));
-		}
-		return listOfCompilationDto;
+		List<Event> allEvents = compilations.stream()
+				.flatMap(compilation -> compilation.getEvents().stream())
+				.distinct()
+				.collect(Collectors.toList());
+		Map<Long, Long> viewStats = allEvents.isEmpty() ? Map.of() : eventUtils.getViews(allEvents);
+		Map<Long, Long> confirmedRequests = allEvents.isEmpty() ? Map.of() : eventUtils.getConfirmedRequests(allEvents);
+		return compilations.stream()
+				.map(compilation -> {
+					List<EventShortDto> eventsShortDto = getListOfEventShortDto(compilation, viewStats, confirmedRequests);
+					return CompilationMapper.toCompilationDto(compilation, eventsShortDto);
+				})
+				.toList();
 	}
 
 	@Override
@@ -93,6 +92,15 @@ public class CompilationServiceImpl implements CompilationService {
 	public void deleteCompilation(Long compilationId) {
 		findCompilation(compilationId);
 		compilationRepository.deleteById(compilationId);
+	}
+
+	private List<EventShortDto> getListOfEventShortDto(Compilation compilation, Map<Long, Long> viewStats, Map<Long, Long> confirmedRequests) {
+		return compilation.getEvents().stream()
+				.map(event -> EventMapper.toEventShortDto(
+						event,
+						confirmedRequests.getOrDefault(event.getId(), 0L),
+						viewStats.getOrDefault(event.getId(), 0L)))
+				.toList();
 	}
 
 	private Compilation findCompilation(Long id) {
