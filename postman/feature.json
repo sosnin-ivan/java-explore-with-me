@@ -1,0 +1,444 @@
+{
+	"info": {
+		"_postman_id": "730fa48a-e900-4dfc-9fb8-379f49e6504d",
+		"name": "Comments API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11437094"
+	},
+	"item": [
+		{
+			"name": "Public Comments",
+			"item": [
+				{
+					"name": "Get all event comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/comments?:eventId=1&:from=0&:size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"comments"
+							],
+							"query": [
+								{
+									"key": ":eventId",
+									"value": "1"
+								},
+								{
+									"key": ":from",
+									"value": "0"
+								},
+								{
+									"key": ":size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Private Comments",
+			"item": [
+				{
+					"name": "Add comment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function() {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Тестовый комментарий\",\n  \"eventId\": {{eventId}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{userId}}/comments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 Ok\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Обновленный комментарий\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{userId}}/comments/{{commentId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}",
+								"comments",
+								"{{commentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204 No content\", function() {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{userId}}/comments/{{commentId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}",
+								"comments",
+								"{{commentId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Comments",
+			"item": [
+				{
+					"name": "Get comments by author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 Ok\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/comments/users/{{userId}}?from=0&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"comments",
+								"users",
+								"{{userId}}"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update comment state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 Ok\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"state\": \"PUBLISHED\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/comments/{{commentId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"comments",
+								"{{commentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204 No content\", function() {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/comments/{{commentId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"comments",
+								"{{commentId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"const userResponse = await pm.sendRequest({\r",
+					"    url: pm.variables.get('base_url') + '/admin/users',\r",
+					"    method: 'POST',\r",
+					"    header: { 'Content-Type': 'application/json' },\r",
+					"    body: {\r",
+					"        mode: 'raw',\r",
+					"        raw: JSON.stringify({\r",
+					"            name: 'Тестовый юзер',\r",
+					"            email: `user${Math.floor(Math.random() * 100000)}@test.ru`\r",
+					"        })\r",
+					"    }\r",
+					"});\r",
+					"const user = userResponse.json();\r",
+					"pm.variables.set('userId', user.id);\r",
+					"\r",
+					"const categoryResponse = await pm.sendRequest({\r",
+					"    url: pm.variables.get('base_url') + '/admin/categories',\r",
+					"    method: 'POST',\r",
+					"    header: { 'Content-Type': 'application/json' },\r",
+					"    body: {\r",
+					"        mode: 'raw',\r",
+					"        raw: JSON.stringify({\r",
+					"            name: `Категория ${Math.floor(Math.random() * 100000)}`\r",
+					"        })\r",
+					"    }\r",
+					"});\r",
+					"const category = categoryResponse.json();\r",
+					"pm.variables.set('categoryId', category.id);\r",
+					"\r",
+					"function formatDate(date) {\r",
+					"    const pad = num => num.toString().padStart(2, '0');\r",
+					"    return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;\r",
+					"}\r",
+					"\r",
+					"const tomorrow = new Date();\r",
+					"tomorrow.setDate(tomorrow.getDate() + 1);\r",
+					"\r",
+					"const eventResponse = await pm.sendRequest({\r",
+					"    url: pm.variables.get('base_url') + '/users/' + pm.variables.get('userId') + '/events',\r",
+					"    method: 'POST',\r",
+					"    header: { 'Content-Type': 'application/json' },\r",
+					"    body: {\r",
+					"        mode: 'raw',\r",
+					"        raw: JSON.stringify({\r",
+					"            title: 'Сплав на байдарках',\r",
+					"            annotation: 'Сплав на байдарках похож на полет',\r",
+					"            description: 'Сплав на байдарках похож на полет. На спокойной воде — это парение. На бурной, порожистой — выполнение фигур высшего пилотажа. И то, и другое дарят чувство обновления, феерические эмоции, яркие впечатления',\r",
+					"            category: pm.variables.get('categoryId'),\r",
+					"            eventDate: formatDate(tomorrow),\r",
+					"            location: {\r",
+					"                lat: 55.754167,\r",
+					"                lon: 37.62\r",
+					"            },\r",
+					"            paid: false,\r",
+					"            participantLimit: 0,\r",
+					"            requestModeration: false\r",
+					"        })\r",
+					"    }\r",
+					"});\r",
+					"const event = eventResponse.json();\r",
+					"pm.variables.set('eventId', event.id);\r",
+					"\r",
+					"await pm.sendRequest({\r",
+					"    url: pm.variables.get('base_url') + '/admin/events/' + pm.variables.get('eventId'),\r",
+					"    method: 'PATCH',\r",
+					"    header: { 'Content-Type': 'application/json' },\r",
+					"    body: {\r",
+					"        mode: 'raw',\r",
+					"        raw: JSON.stringify({\r",
+					"            stateAction: 'PUBLISH_EVENT'\r",
+					"        })\r",
+					"    }\r",
+					"});\r",
+					"\r",
+					"const commentResponse = await pm.sendRequest({\r",
+					"    url: `${pm.collectionVariables.get('base_url')}/users/${pm.variables.get('userId')}/comments`,\r",
+					"    method: 'POST',\r",
+					"    header: { 'Content-Type': 'application/json' },\r",
+					"    body: {\r",
+					"        mode: 'raw',\r",
+					"        raw: JSON.stringify({\r",
+					"            text: \"Комментарий из pre-request\",\r",
+					"            eventId: pm.variables.get('eventId')\r",
+					"        })\r",
+					"    }\r",
+					"});\r",
+					"const comment = commentResponse.json();\r",
+					"pm.variables.set('commentId', comment.id);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080"
+		}
+	]
+}
