@@ -27,7 +27,7 @@ public class CommentMapper {
 		}
 		return CommentShortDto.builder()
 				.text(comment.getText())
-				.author(comment.getAuthor())
+				.author(UserMapper.toUserShortDto(comment.getAuthor()))
 				.build();
 	}
 
